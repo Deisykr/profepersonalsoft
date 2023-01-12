@@ -1,14 +1,56 @@
-import {consultarcancionestop} from '../services/servicioCanciones.js'
+import {servicioCancionesTop} from '../services/servicioCanciones.js'
+import { useState,useEffect } from 'react'
 
 export function Music(){
 
-    consultarcancionestop()
+    //usando el hook usestate para almacenar la respuesta
+    //del api de forma global
+    const[canciones,setCanciones]=useState(null)
+    const[estadoCarga,setEstadoCarga]=useState(true)
 
-    return(
+    //usando el hook useeffect para limitar el consumo
+    //del api a una sola vez
+    useEffect(function(){
+
+        servicioCancionesTop().then(function(respuesta){
+            setCanciones(respuesta)
+            setEstadoCarga(false)
+        })
+
+    },[])
+
+    //render del componente:
+    if(estadoCarga==true){
+
+        return(
+            <>
+                <h2>Estamos cargando las canciones</h2>
+            </>
+        )
+
+    }else{
+
+       return(
         <>
-        
-            <h1>MUSICA....</h1>
+            <h2>Canciones de la banda: </h2>
+            {
+                canciones.tracks.map(function(cancion){
+                    {console.log(cancion)}
+                    return(
+                        <div>
+                             <h1>{cancion.name}</h1>
+                             <audio controls src={cancion.preview_url}></audio>
+                             <img src={cancion.album.images[0].url}></img>
+                        </div>
+                       
+                    )
+                })
+            }
         </>
-    )
+       )
+
+    }
+
+    
 
 }
